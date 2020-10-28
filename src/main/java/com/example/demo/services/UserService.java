@@ -8,8 +8,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Cacheable(value = "userCache")
     public List<User> findAll(String name, boolean sortOnId) {
@@ -52,28 +52,27 @@ public class UserService {
 
     @CachePut(value = "userCache", key = "#result.id")
     public User save(User user){
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @CachePut(value = "userCache", key = "#id")
     public void update(String id, User user){
-//        var isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-//                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().toUpperCase().equals("ROLE_ADMIN"));
-//        var isCurrentUser = SecurityContextHolder.getContext().getAuthentication()
-//                .getName().toLowerCase().equals(user.getUsername().toLowerCase());
-//        if(!isAdmin && !isCurrentUser){
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-//                    "You can only update your own details. Admin can update all user details.");
-//        }
+        var isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().toUpperCase().equals("ROLE_ADMIN"));
+        var isCurrentUser = SecurityContextHolder.getContext().getAuthentication()
+                .getName().toLowerCase().equals(user.getUsername().toLowerCase());
+        if(!isAdmin && !isCurrentUser){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "You can only update your own details. Admin can update all user details.");
+        }
         if(!userRepository.existsById(id)){
             log.error(String.format("Could not find the user by id %s.", id));// add one log for the error
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, //404 - NOT FOUND
                     String.format("Could not find the user by id %s.", id));
         }
         user.setId(id);
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        user.setPhone("tel:" + user.getPhone());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //call builder from user entity
         user = User.builder()
@@ -98,7 +97,6 @@ public class UserService {
 
         userRepository.deleteById(id);
     }
-
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)

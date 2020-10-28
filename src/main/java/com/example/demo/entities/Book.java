@@ -6,10 +6,13 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Data
 @Builder
-public class Book {
+public class Book implements Serializable {
+    private static final long serialVersionUID = 4213302687940653944L;
+
     @Id
     private String id;
     @NotEmpty(message = "isbn can not be empty")

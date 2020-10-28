@@ -145,17 +145,7 @@ public class BookService {
         }
 
         book.setId(id);
-
-        book = Book.builder()
-                .id(id)
-                .isbn(bookRepository.findById(id).get().getIsbn())
-                .name(bookRepository.findById(id).get().getName())
-                .plot(bookRepository.findById(id).get().getPlot())
-                .author(bookRepository.findById(id).get().getAuthor())
-                .genre(bookRepository.findById(id).get().getGenre())
-                .isAvailable(false)
-                .build();
-
+        book.setAvailable(false);
         bookRepository.save(book);
     }
 
@@ -167,16 +157,7 @@ public class BookService {
                     String.format("Could not find the book by id %s.", id));
         }
         book.setId(id);
-
-        book = Book.builder()
-                .id(id)
-                .isbn(bookRepository.findById(id).get().getIsbn())
-                .name(bookRepository.findById(id).get().getName())
-                .plot(bookRepository.findById(id).get().getPlot())
-                .author(bookRepository.findById(id).get().getAuthor())
-                .genre(bookRepository.findById(id).get().getGenre())
-                .isAvailable(true)
-                .build();
+        book.setAvailable(true);
 
         bookRepository.save(book);
     }
